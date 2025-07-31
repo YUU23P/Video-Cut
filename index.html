@@ -3,565 +3,535 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Cutter Online</title>
+    <title>Video Cutter & Joiner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-            --success-color: #4cc9f0;
-        }
-        
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #f5f7ff;
-            color: var(--dark-color);
-            line-height: 1.6;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        
-        h1 {
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-        
-        .subtitle {
-            color: #6c757d;
-            margin-bottom: 1.5rem;
-        }
-        
-        .upload-area {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            margin-bottom: 2rem;
-            text-align: center;
-            border: 2px dashed #ced4da;
-            transition: all 0.3s ease;
-        }
-        
-        .upload-area:hover {
-            border-color: var(--primary-color);
-        }
-        
-        .upload-area i {
-            font-size: 3rem;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-            display: block;
-        }
-        
-        .upload-area p {
-            margin-bottom: 1.5rem;
-        }
-        
-        .btn {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .btn:hover {
-            background-color: var(--secondary-color);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .btn-secondary {
-            background-color: #6c757d;
-        }
-        
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-        
-        .btn-success {
-            background-color: var(--success-color);
-        }
-        
-        .btn-success:hover {
-            background-color: #3aa9d1;
-        }
-        
         .video-container {
-            display: none;
-            margin-bottom: 2rem;
+            aspect-ratio: 16/9;
+            background-color: #1e293b;
         }
-        
-        video {
-            width: 100%;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        .progress-container {
+            height: 6px;
+            background-color: #e2e8f0;
         }
-        
-        .controls {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
+        .progress-bar {
+            height: 100%;
+            background-color: #3b82f6;
+            transition: width 0.3s;
         }
-        
-        .timeline-container {
-            margin-bottom: 1.5rem;
+        .timeline-marker {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: red;
+            z-index: 10;
         }
-        
-        .timeline {
-            width: 100%;
-            height: 10px;
-            background-color: #e9ecef;
-            border-radius: 5px;
+        .segment {
+            position: absolute;
+            height: 100%;
+            background-color: rgba(59, 130, 246, 0.3);
+            border: 1px solid #3b82f6;
+        }
+        #timeline-container {
+            height: 60px;
+            background-color: #334155;
             position: relative;
-            margin-top: 1rem;
-            margin-bottom: 2rem;
+        }
+        .keyword-pill {
+            background-color: #0ea5e9;
+            color: white;
+            border-radius: 9999px;
+            padding: 2px 10px;
+            font-size: 12px;
+            margin-right: 4px;
+            display: inline-flex;
+            align-items: center;
+        }
+        .keyword-pill button {
+            margin-left: 4px;
+            background: none;
+            border: none;
+            color: white;
             cursor: pointer;
         }
-        
-        .progress {
-            height: 100%;
-            background-color: var(--primary-color);
-            border-radius: 5px;
-            width: 0%;
-        }
-        
-        .range-handles {
-            position: relative;
+        select {
+            background-color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #d1d5db;
             width: 100%;
-        }
-        
-        .range-slider {
-            width: 100%;
-            margin-bottom: 2rem;
-        }
-        
-        .time-inputs {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-        
-        .time-input {
-            display: flex;
-            flex-direction: column;
-            width: 48%;
-        }
-        
-        label {
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-        
-        input[type="number"] {
-            padding: 0.75rem;
-            border: 1px solid #ced4da;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
-        
-        input[type="range"] {
-            width: 100%;
-            margin-bottom: 1rem;
-        }
-        
-        .actions {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-        }
-        
-        .loading {
-            display: none;
-            text-align: center;
-            margin: 2rem 0;
-        }
-        
-        .spinner {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--primary-color);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        footer {
-            text-align: center;
-            margin-top: 3rem;
-            color: #6c757d;
-            padding: 1rem 0;
-            border-top: 1px solid #e9ecef;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-            
-            .time-inputs {
-                flex-direction: column;
-            }
-            
-            .time-input {
-                width: 100%;
-                margin-bottom: 1rem;
-            }
-            
-            .actions {
-                flex-direction: column;
-            }
-            
-            .btn {
-                width: 100%;
-                margin-bottom: 0.5rem;
-            }
+            color: #111827;
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1>Video Cutter Online</h1>
-            <p class="subtitle">Potong video Anda dengan mudah secara online tanpa mengunduh perangkat lunak</p>
-        </header>
-        
-        <div class="upload-area" id="uploadArea">
-            <i class="fas fa-video"></i>
-            <h2>Seret dan lepas video di sini</h2>
-            <p>Atau</p>
-            <button class="btn" id="selectFileBtn">Pilih File</button>
-            <input type="file" id="fileInput" accept="video/*" style="display: none;">
-        </div>
-        
-        <div class="video-container" id="videoContainer">
-            <video id="videoPlayer" controls></video>
-            
-            <div class="controls">
-                <div class="timeline-container">
-                    <div class="timeline" id="timeline">
-                        <div class="progress" id="progress"></div>
+<body class="bg-slate-100 text-gray-800">
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <!-- Header -->
+            <div class="bg-blue-600 text-white p-6">
+                <h1 class="text-2xl font-bold flex items-center">
+                    <i class="fas fa-cut mr-2"></i>
+                    Video Cutter & Joiner
+                </h1>
+                <p class="text-blue-100 mt-2">Potong dan gabungkan video berdasarkan kata kunci yang Anda tentukan</p>
+            </div>
+
+            <!-- Main Content -->
+            <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left Panel - Upload & Controls -->
+                <div class="lg:col-span-1 space-y-6">
+                    <!-- Upload Section -->
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <h2 class="font-semibold text-lg mb-3 text-slate-800">
+                            <i class="fas fa-upload mr-2 text-blue-500"></i>Upload Video
+                        </h2>
+                        
+                        <div id="drop-area" class="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center cursor-pointer hover:bg-slate-100 transition-colors">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-blue-400 mb-3"></i>
+                            <p class="text-slate-500 mb-2">Drag & drop video di sini atau klik untuk memilih</p>
+                            <p class="text-xs text-slate-400">Format: MP4, AVI, MOV, MKV | Maksimal: 5GB</p>
+                            <input type="file" id="fileInput" class="hidden" accept="video/*">
+                            <div class="progress-container mt-4 hidden">
+                                <div class="progress-bar" id="upload-progress" style="width: 0%"></div>
+                            </div>
+                            <div id="file-info" class="mt-2 hidden">
+                                <p class="text-sm text-green-600" id="file-name"></p>
+                                <p class="text-xs text-slate-500" id="file-size"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Keyword Section -->
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <h2 class="font-semibold text-lg mb-3 text-slate-800">
+                            <i class="fas fa-key mr-2 text-blue-500"></i>Kata Kunci
+                        </h2>
+                        
+                        <div class="flex mb-3">
+                            <input type="text" id="keyword-input" placeholder="Masukkan kata kunci (cth: PLN)" 
+                                class="flex-1 px-3 py-2 border border-slate-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <button id="add-keyword" class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600 transition-colors">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        
+                        <div id="keywords-container" class="flex flex-wrap gap-2 mb-3 min-h-10">
+                            <!-- Keywords will be added here -->
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Deteksi Otomatis</label>
+                            <select id="auto-detect">
+                                <option value="subtitles">Dari Subtitel</option>
+                                <option value="speech">Deteksi Ucapan (Speech Recognition)</option>
+                                <option value="none" selected>Manual</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Settings Section -->
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <h2 class="font-semibold text-lg mb-3 text-slate-800">
+                            <i class="fas fa-cog mr-2 text-blue-500"></i>Pengaturan
+                        </h2>
+                        
+                        <div class="mb-3">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Margin Waktu (detik)</label>
+                            <input type="number" id="margin-time" value="2" min="0" max="10" 
+                                class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Format Output</label>
+                            <select id="output-format">
+                                <option value="mp4" selected>MP4</option>
+                                <option value="webm">WebM</option>
+                                <option value="mov">MOV</option>
+                                <option value="avi">AVI</option>
+                            </select>
+                        </div>
+                        
+                        <button id="process-btn" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center disabled:bg-slate-400" disabled>
+                            <i class="fas fa-cut mr-2"></i>Proses Video
+                        </button>
                     </div>
                 </div>
-                
-                <div class="range-handles">
-                    <div class="time-inputs">
-                        <div class="time-input">
-                            <label for="startTime">Waktu Mulai (detik)</label>
-                            <input type="number" id="startTime" min="0" step="0.1" value="0">
-                        </div>
-                        <div class="time-input">
-                            <label for="endTime">Waktu Akhir (detik)</label>
-                            <input type="number" id="endTime" min="0" step="0.1" value="0">
+
+                <!-- Right Panel - Video & Results -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Video Player -->
+                    <div class="bg-slate-900 rounded-lg overflow-hidden">
+                        <div class="video-container flex items-center justify-center">
+                            <video id="video-player" class="w-full h-full" controls></video>
+                            <div id="no-video" class="text-white text-center p-8">
+                                <i class="fas fa-film text-4xl mb-3 text-slate-400"></i>
+                                <h3 class="text-xl font-semibold mb-1">Tidak ada video</h3>
+                                <p class="text-slate-300">Upload video untuk memulai</p>
+                            </div>
                         </div>
                     </div>
                     
-                    <input type="range" id="rangeSlider" min="0" max="100" step="0.1" value="0" class="range-slider">
-                </div>
-                
-                <div class="actions">
-                    <button class="btn btn-secondary" id="previewBtn">Preview</button>
-                    <button class="btn btn-success" id="cutBtn">Potong Video</button>
+                    <!-- Timeline -->
+                    <div id="timeline-container" class="hidden">
+                        <div id="timeline" class="h-1/2 w-full bg-slate-700 relative"></div>
+                        <div id="segments" class="h-1/2 w-full relative"></div>
+                    </div>
+
+                    <!-- Results -->
+                    <div id="results-section" class="hidden">
+                        <h2 class="font-semibold text-lg mb-3 text-slate-800 flex items-center">
+                            <i class="fas fa-file-video mr-2 text-blue-500"></i>
+                            Hasil Pemrosesan
+                        </h2>
+                        
+                        <div id="result-videos" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Results will be added here -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Sedang memotong video...</p>
-        </div>
-        
-        <footer>
-            <p>Video Cutter Online Yuu-Web © 2025 - Semua file diproses secara lokal di browser Anda</p>
-        </footer>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const uploadArea = document.getElementById('uploadArea');
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM Elements
+            const dropArea = document.getElementById('drop-area');
             const fileInput = document.getElementById('fileInput');
-            const selectFileBtn = document.getElementById('selectFileBtn');
-            const videoContainer = document.getElementById('videoContainer');
-            const videoPlayer = document.getElementById('videoPlayer');
+            const videoPlayer = document.getElementById('video-player');
+            const noVideo = document.getElementById('no-video');
+            const uploadProgress = document.getElementById('upload-progress');
+            const fileInfo = document.getElementById('file-info');
+            const fileName = document.getElementById('file-name');
+            const fileSize = document.getElementById('file-size');
+            const keywordInput = document.getElementById('keyword-input');
+            const addKeywordBtn = document.getElementById('add-keyword');
+            const keywordsContainer = document.getElementById('keywords-container');
+            const processBtn = document.getElementById('process-btn');
+            const marginTime = document.getElementById('margin-time');
+            const timelineContainer = document.getElementById('timeline-container');
             const timeline = document.getElementById('timeline');
-            const progress = document.getElementById('progress');
-            const rangeSlider = document.getElementById('rangeSlider');
-            const startTimeInput = document.getElementById('startTime');
-            const endTimeInput = document.getElementById('endTime');
-            const previewBtn = document.getElementById('previewBtn');
-            const cutBtn = document.getElementById('cutBtn');
-            const loading = document.getElementById('loading');
+            const segments = document.getElementById('segments');
+            const resultsSection = document.getElementById('results-section');
+            const resultVideos = document.getElementById('result-videos');
+            const autoDetect = document.getElementById('auto-detect');
             
-            let videoFile = null;
-            let videoDuration = 0;
-            let videoUrl = '';
+            let currentFile = null;
+            let currentVideoUrl = null;
+            let keywordSegments = [];
+            let isDragging = false;
+            let startDragPos = 0;
+            let currentSegment = null;
             
             // Event Listeners
-            uploadArea.addEventListener('click', () => fileInput.click());
-            selectFileBtn.addEventListener('click', () => fileInput.click());
-            
-            uploadArea.addEventListener('dragover', (e) => {
+            dropArea.addEventListener('click', () => fileInput.click());
+            dropArea.addEventListener('dragover', (e) => {
                 e.preventDefault();
-                uploadArea.style.borderColor = 'var(--primary-color)';
-                uploadArea.style.backgroundColor = 'rgba(67, 97, 238, 0.05)';
+                dropArea.classList.add('border-blue-400', 'bg-blue-50');
             });
-            
-            uploadArea.addEventListener('dragleave', () => {
-                uploadArea.style.borderColor = '#ced4da';
-                uploadArea.style.backgroundColor = 'white';
+            dropArea.addEventListener('dragleave', () => {
+                dropArea.classList.remove('border-blue-400', 'bg-blue-50');
             });
-            
-            uploadArea.addEventListener('drop', (e) => {
+            dropArea.addEventListener('drop', (e) => {
                 e.preventDefault();
-                uploadArea.style.borderColor = '#ced4da';
-                uploadArea.style.backgroundColor = 'white';
-                
+                dropArea.classList.remove('border-blue-400', 'bg-blue-50');
                 if (e.dataTransfer.files.length) {
-                    fileInput.files = e.dataTransfer.files;
-                    handleFileSelect(e.dataTransfer.files[0]);
+                    handleFiles(e.dataTransfer.files);
                 }
             });
             
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length) {
-                    handleFileSelect(fileInput.files[0]);
+                    handleFiles(fileInput.files);
                 }
             });
             
-            timeline.addEventListener('click', (e) => {
-                const rect = timeline.getBoundingClientRect();
-                const pos = (e.clientX - rect.left) / rect.width;
-                videoPlayer.currentTime = pos * videoDuration;
-                updateTimeline();
+            addKeywordBtn.addEventListener('click', addKeyword);
+            keywordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addKeyword();
+                }
             });
             
-            videoPlayer.addEventListener('timeupdate', updateTimeline);
-            
-            videoPlayer.addEventListener('loadedmetadata', () => {
-                videoDuration = videoPlayer.duration;
-                endTimeInput.value = videoDuration.toFixed(1);
-                rangeSlider.max = Math.floor(videoDuration);
-                updateInputsFromSlider();
-            });
-            
-            rangeSlider.addEventListener('input', updateInputsFromSlider);
-            
-            startTimeInput.addEventListener('change', updateSliderFromInputs);
-            endTimeInput.addEventListener('change', updateSliderFromInputs);
-            
-            previewBtn.addEventListener('click', previewSelection);
-            cutBtn.addEventListener('click', cutVideo);
+            processBtn.addEventListener('click', processVideo);
             
             // Functions
-            function handleFileSelect(file) {
-                if (!file.type.startsWith('video/')) {
-                    alert('Silakan pilih file video yang valid.');
+            function handleFiles(files) {
+                const file = files[0];
+                if (!file.type.includes('video')) {
+                    alert('Harap pilih file video');
                     return;
                 }
                 
-                videoFile = file;
-                
-                if (videoUrl) {
-                    URL.revokeObjectURL(videoUrl);
+                if (file.size > 5 * 1024 * 1024 * 1024) {
+                    alert('Ukuran file melebihi 5GB');
+                    return;
                 }
                 
-                videoUrl = URL.createObjectURL(file);
-                videoPlayer.src = videoUrl;
-                videoContainer.style.display = 'block';
+                currentFile = file;
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
                 
-                // Scroll to video container
-                videoContainer.scrollIntoView({ behavior: 'smooth' });
-            }
-            
-            function updateTimeline() {
-                const percentage = (videoPlayer.currentTime / videoDuration) * 100;
-                progress.style.width = percentage + '%';
+                // Show upload progress (simulated for demo - in real app, implement actual upload)
+                document.querySelector('.progress-container').classList.remove('hidden');
+                fileInfo.classList.remove('hidden');
                 
-                const sliderPercentage = videoPlayer.currentTime / videoDuration * 100;
-                if (Math.abs(sliderPercentage - rangeSlider.value) > 5) {
-                    rangeSlider.value = sliderPercentage;
-                }
-            }
-            
-            function updateInputsFromSlider() {
-                const sliderValue = parseFloat(rangeSlider.value);
-                const duration = parseFloat(videoDuration);
-                
-                if (sliderValue < duration && sliderValue >= 0) {
-                    videoPlayer.currentTime = sliderValue;
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 5;
+                    uploadProgress.style.width = `${progress}%`;
                     
-                    if (sliderValue < parseFloat(startTimeInput.value)) {
-                        startTimeInput.value = sliderValue.toFixed(1);
-                    } else if (sliderValue > parseFloat(endTimeInput.value)) {
-                        endTimeInput.value = sliderValue.toFixed(1);
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        setupVideo(file);
                     }
-                }
-                
-                updateTimeline();
+                }, 100);
             }
             
-            function updateSliderFromInputs() {
-                const startTime = parseFloat(startTimeInput.value);
-                const endTime = parseFloat(endTimeInput.value);
-                
-                if (startTime <= endTime && endTime <= videoDuration) {
-                    videoPlayer.currentTime = startTime;
-                    rangeSlider.value = startTime;
-                    updateTimeline();
-                } else {
-                    alert('Waktu mulai harus lebih kecil dari waktu akhir.');
-                    startTimeInput.value = '0';
-                    endTimeInput.value = videoDuration.toFixed(1);
-                }
+            function formatFileSize(bytes) {
+                if (bytes < 1024) return bytes + ' bytes';
+                else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+                else if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
+                else return (bytes / 1073741824).toFixed(1) + ' GB';
             }
             
-            function previewSelection() {
-                const startTime = parseFloat(startTimeInput.value);
-                const endTime = parseFloat(endTimeInput.value);
-                
-                if (startTime >= endTime) {
-                    alert('Waktu mulai harus lebih kecil dari waktu akhir.');
-                    return;
+            function setupVideo(file) {
+                if (currentVideoUrl) {
+                    URL.revokeObjectURL(currentVideoUrl);
                 }
                 
-                if (endTime > videoDuration) {
-                    alert('Waktu akhir tidak boleh melebihi durasi video.');
-                    return;
-                }
-                
-                videoPlayer.currentTime = startTime;
-                videoPlayer.play();
-                
-                videoPlayer.ontimeupdate = function() {
-                    if (this.currentTime >= endTime) {
-                        this.pause();
-                        this.ontimeupdate = null;
-                    }
+                currentVideoUrl = URL.createObjectURL(file);
+                videoPlayer.src = currentVideoUrl;
+                videoPlayer.onloadedmetadata = () => {
+                    noVideo.classList.add('hidden');
+                    videoPlayer.classList.remove('hidden');
+                    timelineContainer.classList.remove('hidden');
+                    processBtn.disabled = false;
+                    createTimeline();
                 };
             }
             
-            function cutVideo() {
-                if (!videoFile) {
-                    alert('Silakan unggah video terlebih dahulu.');
-                    return;
+            function addKeyword() {
+                const keyword = keywordInput.value.trim();
+                if (!keyword) return;
+                
+                const keywordPill = document.createElement('div');
+                keywordPill.className = 'keyword-pill';
+                keywordPill.innerHTML = `
+                    ${keyword}
+                    <button class="delete-keyword" data-keyword="${keyword}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                keywordsContainer.appendChild(keywordPill);
+                keywordInput.value = '';
+                
+                // Add delete event for the keyword
+                keywordPill.querySelector('.delete-keyword').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const keyword = e.target.closest('button').getAttribute('data-keyword');
+                    keywordPill.remove();
+                    updateSegments();
+                });
+                
+                if (autoDetect.value === 'none') {
+                    // For demo, we'll just create random segments
+                    setTimeout(() => {
+                        createDemoSegments();
+                    }, 500);
+                } else {
+                    // In a real app, you would implement subtitle or speech detection here
+                    console.log(`Detecting keywords from ${autoDetect.value}`);
                 }
-                
-                const startTime = parseFloat(startTimeInput.value);
-                const endTime = parseFloat(endTimeInput.value);
-                
-                if (startTime >= endTime) {
-                    alert('Waktu mulai harus lebih kecil dari waktu akhir.');
-                    return;
-                }
-                
-                if (endTime > videoDuration) {
-                    alert('Waktu akhir tidak boleh melebihi durasi video.');
-                    return;
-                }
-                
-                loading.style.display = 'block';
-                cutBtn.disabled = true;
-                
-                // Process video cutting
-                setTimeout(() => {
-                    processVideoCut(videoFile, startTime, endTime);
-                }, 500);
             }
             
-            function processVideoCut(file, startTime, endTime) {
-                const video = document.createElement('video');
-                const sourceUrl = URL.createObjectURL(file);
-                video.src = sourceUrl;
+            function createTimeline() {
+                timeline.innerHTML = '';
+                segments.innerHTML = '';
                 
-                video.onloadedmetadata = function() {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
+                // For demo purposes, we'll create a simple timeline with a few segments
+                const duration = videoPlayer.duration;
+                
+                // Add click event to timeline for creating segments
+                timeline.addEventListener('mousedown', (e) => {
+                    if (e.ctrlKey || e.metaKey) {
+                        isDragging = true;
+                        startDragPos = (e.offsetX / timeline.offsetWidth) * duration;
+                        currentSegment = document.createElement('div');
+                        currentSegment.className = 'segment';
+                        currentSegment.style.height = '100%';
+                        currentSegment.style.left = `${(startDragPos / duration) * 100}%`;
+                        currentSegment.style.width = '0%';
+                        segments.appendChild(currentSegment);
+                        
+                        document.addEventListener('mousemove', dragMove);
+                        document.addEventListener('mouseup', dragEnd);
+                    }
+                });
+                
+                function dragMove(e) {
+                    if (!isDragging) return;
+                    const currentPos = (e.offsetX / timeline.offsetWidth) * duration;
+                    const width = Math.abs(currentPos - startDragPos);
+                    const left = Math.min(startDragPos, currentPos);
                     
-                    // Set canvas dimensions to video dimensions
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
+                    currentSegment.style.left = `${(left / duration) * 100}%`;
+                    currentSegment.style.width = `${(width / duration) * 100}%`;
+                }
+                
+                function dragEnd(e) {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    document.removeEventListener('mousemove', dragMove);
+                    document.removeEventListener('mouseup', dragEnd);
                     
-                    const chunks = [];
-                    const stream = canvas.captureStream();
-                    const mediaRecorder = new MediaRecorder(stream, {
-                        mimeType: 'video/webm'
+                    const currentPos = (e.offsetX / timeline.offsetWidth) * duration;
+                    const start = Math.min(startDragPos, currentPos);
+                    const end = Math.max(startDragPos, currentPos);
+                    
+                    keywordSegments.push({
+                        start,
+                        end,
+                        keyword: `Custom ${keywordSegments.length + 1}`
                     });
                     
-                    mediaRecorder.ondataavailable = function(e) {
-                        chunks.push(e.data);
-                    };
+                    updateSegments();
+                }
+            }
+            
+            function createDemoSegments() {
+                const duration = videoPlayer.duration;
+                const keywords = Array.from(keywordsContainer.querySelectorAll('.keyword-pill'))
+                    .map(el => el.textContent.trim().replace('close', '').trim());
+                
+                if (keywords.length === 0) return;
+                
+                // Clear existing segments
+                keywordSegments = [];
+                segments.innerHTML = '';
+                
+                // Create some demo segments for each keyword
+                keywords.forEach((keyword, index) => {
+                    const segmentCount = Math.floor(Math.random() * 3) + 1; // 1-3 segments per keyword
                     
-                    mediaRecorder.onstop = function() {
-                        const blob = new Blob(chunks, { type: 'video/webm' });
-                        const url = URL.createObjectURL(blob);
+                    for (let i = 0; i < segmentCount; i++) {
+                        const maxStart = duration - 5;
+                        if (maxStart <= 0) continue;
                         
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'cut_' + file.name.replace(/\.[^/.]+$/, '') + '.webm';
-                        document.body.appendChild(a);
-                        a.click();
+                        const start = Math.random() * maxStart;
+                        const end = start + (Math.random() * 5) + 1;
                         
-                        setTimeout(() => {
-                            document.body.removeChild(a);
-                            URL.revokeObjectURL(sourceUrl);
-                            URL.revokeObjectURL(url);
-                        }, 100);
-                        
-                        loading.style.display = 'none';
-                        cutBtn.disabled = false;
-                    };
+                        keywordSegments.push({
+                            start,
+                            end,
+                            keyword
+                        });
+                    }
+                });
+                
+                updateSegments();
+            }
+            
+            function updateSegments() {
+                segments.innerHTML = '';
+                const duration = videoPlayer.duration;
+                
+                keywordSegments.forEach((segment, index) => {
+                    const segmentEl = document.createElement('div');
+                    segmentEl.className = 'segment';
+                    segmentEl.style.left = `${(segment.start / duration) * 100}%`;
+                    segmentEl.style.width = `${((segment.end - segment.start) / duration) * 100}%`;
+                    segmentEl.title = `${segment.keyword}: ${formatTime(segment.start)} - ${formatTime(segment.end)}`;
+                    segments.appendChild(segmentEl);
                     
-                    video.currentTime = startTime;
+                    // Add click to play segment
+                    segmentEl.addEventListener('click', () => {
+                        videoPlayer.currentTime = segment.start;
+                        videoPlayer.play();
+                    });
+                });
+            }
+            
+            function formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            }
+            
+            function processVideo() {
+                if (keywordSegments.length === 0) {
+                    alert('Tidak ada segmen untuk diproses. Tambahkan kata kunci dulu.');
+                    return;
+                }
+                
+                processBtn.disabled = true;
+                processBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Memproses...';
+                
+                // Simulate processing delay
+                setTimeout(() => {
+                    showResults();
+                    processBtn.disabled = false;
+                    processBtn.innerHTML = '<i class="fas fa-cut mr-2"></i>Proses Video';
+                }, 2000);
+            }
+            
+            function showResults() {
+                resultsSection.classList.remove('hidden');
+                resultVideos.innerHTML = '';
+                
+                // Group segments by keyword
+                const segmentsByKeyword = {};
+                keywordSegments.forEach(segment => {
+                    if (!segmentsByKeyword[segment.keyword]) {
+                        segmentsByKeyword[segment.keyword] = [];
+                    }
+                    segmentsByKeyword[segment.keyword].push(segment);
+                });
+                
+                // Create result cards
+                for (const [keyword, segments] of Object.entries(segmentsByKeyword)) {
+                    const resultCard = document.createElement('div');
+                    resultCard.className = 'bg-white rounded-lg shadow-md overflow-hidden border border-slate-200';
                     
-                    video.onseeked = function() {
-                        mediaRecorder.start();
-                        
-                        function captureFrame() {
-                            if (video.currentTime >= endTime || video.ended) {
-                                mediaRecorder.stop();
-                                return;
-                            }
-                            
-                            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                            video.currentTime = Math.min(video.currentTime + 0.1, endTime);
-                            
-                            requestAnimationFrame(captureFrame);
-                        }
-                        
-                        captureFrame();
-                    };
+                    const videoUrl = currentVideoUrl; // In a real app, this would be the processed segment URL
                     
-                    video.play();
-                };
+                    resultCard.innerHTML = `
+                        <div class="p-3 bg-slate-50 border-b border-slate-200">
+                            <h3 class="font-medium text-slate-800">${keyword}</h3>
+                        </div>
+                        <div class="aspect-video bg-black">
+                            <video src="${videoUrl}" controls class="w-full h-full"></video>
+                        </div>
+                        <div class="p-3 flex justify-between items-center bg-slate-50 border-t border-slate-200">
+                            <span class="text-sm text-slate-600">
+                                ${segments.length} potongan • Total: ${segments.reduce((sum, s) => sum + (s.end - s.start), 0).toFixed(1)} detik
+                            </span>
+                            <button class="text-blue-600 hover:text-blue-800 text-sm font-medium download-btn" data-keyword="${keyword}">
+                                <i class="fas fa-download mr-1"></i>Unduh
+                            </button>
+                        </div>
+                    `;
+                    
+                    resultVideos.appendChild(resultCard);
+                    
+                    // Set up download button
+                    resultCard.querySelector('.download-btn').addEventListener('click', () => {
+                        alert(`Dalam aplikasi nyata, ini akan mengunduh video untuk kata kunci "${keyword}"`);
+                    });
+                    
+                    // Set up video to play segment on click (just first segment for demo)
+                    if (segments.length > 0) {
+                        const resultVideo = resultCard.querySelector('video');
+                        resultVideo.addEventListener('click', () => {
+                            resultVideo.currentTime = segments[0].start;
+                            resultVideo.play();
+                        });
+                    }
+                }
             }
         });
     </script>
