@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Cutter Online</title>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7ff;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+        }
+        
+        .upload-area {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            border: 2px dashed #ced4da;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        .upload-area p {
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+        }
+        
+        .btn-success:hover {
+            background-color: #3aa9d1;
+        }
+        
+        .video-container {
+            display: none;
+            margin-bottom: 2rem;
+        }
+        
+        video {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .controls {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .timeline-container {
+            margin-bottom: 1.5rem;
+        }
+        
+        .timeline {
+            width: 100%;
+            height: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            position: relative;
+            margin-top: 1rem;
+            margin-bottom: 2rem;
+            cursor: pointer;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 5px;
+            width: 0%;
+        }
+        
+        .range-handles {
+            position: relative;
+            width: 100%;
+        }
+        
+        .range-slider {
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+        
+        .time-inputs {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .time-input {
+            display: flex;
+            flex-direction: column;
+            width: 48%;
+        }
+        
+        label {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        input[type="number"] {
+            padding: 0.75rem;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            color: #6c757d;
+            padding: 1rem 0;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .time-inputs {
+                flex-direction: column;
+            }
+            
+            .time-input {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Video Cutter Online</h1>
+            <p class="subtitle">Potong video Anda dengan mudah secara online tanpa mengunduh perangkat lunak</p>
+        </header>
+        
+        <div class="upload-area" id="uploadArea">
+            <i class="fas fa-video"></i>
+            <h2>Seret dan lepas video di sini</h2>
+            <p>Atau</p>
+            <button class="btn" id="selectFileBtn">Pilih File</button>
+            <input type="file" id="fileInput" accept="video/*" style="display: none;">
+        </div>
+        
+        <div class="video-container" id="videoContainer">
+            <video id="videoPlayer" controls></video>
+            
+            <div class="controls">
+                <div class="timeline-container">
+                    <div class="timeline" id="timeline">
+                        <div class="progress" id="progress"></div>
+                    </div>
+                </div>
+                
+                <div class="range-handles">
+                    <div class="time-inputs">
+                        <div class="time-input">
+                            <label for="startTime">Waktu Mulai (detik)</label>
+                            <input type="number" id="startTime" min="0" step="0.1" value="0">
+                        </div>
+                        <div class="time-input">
+                            <label for="endTime">Waktu Akhir (detik)</label>
+                            <input type="number" id="endTime" min="0" step="0.1" value="0">
+                        </div>
+                    </div>
+                    
+                    <input type="range" id="rangeSlider" min="0" max="100" step="0.1" value="0" class="range-slider">
+                </div>
+                
+                <div class="actions">
+                    <button class="btn btn-secondary" id="previewBtn">Preview</button>
+                    <button class="btn btn-success" id="cutBtn">Potong Video</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Sedang memotong video...</p>
+        </div>
+        
+        <footer>
+            <p>Video Cutter Online Yuu-Web © 2025 - Semua file diproses secara lokal di browser Anda</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const selectFileBtn = document.getElementById('selectFileBtn');
+            const videoContainer = document.getElementById('videoContainer');
+            const videoPlayer = document.getElementById('videoPlayer');
+            const timeline = document.getElementById('timeline');
+            const progress = document.getElementById('progress');
+            const rangeSlider = document.getElementById('rangeSlider');
+            const startTimeInput = document.getElementById('startTime');
+            const endTimeInput = document.getElementById('endTime');
+            const previewBtn = document.getElementById('previewBtn');
+            const cutBtn = document.getElementById('cutBtn');
+            const loading = document.getElementById('loading');
+            
+            let videoFile = null;
+            let videoDuration = 0;
+            let videoUrl = '';
+            
+            // Event Listeners
+            uploadArea.addEventListener('click', () => fileInput.click());
+            selectFileBtn.addEventListener('click', () => fileInput.click());
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'var(--primary-color)';
+                uploadArea.style.backgroundColor = 'rgba(67, 97, 238, 0.05)';
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = '#ced4da';
+                uploadArea.style.backgroundColor = 'white';
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#ced4da';
+                uploadArea.style.backgroundColor = 'white';
+                
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    handleFileSelect(e.dataTransfer.files[0]);
+                }
+            });
+            
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length) {
+                    handleFileSelect(fileInput.files[0]);
+                }
+            });
+            
+            timeline.addEventListener('click', (e) => {
+                const rect = timeline.getBoundingClientRect();
+                const pos = (e.clientX - rect.left) / rect.width;
+                videoPlayer.currentTime = pos * videoDuration;
+                updateTimeline();
+            });
+            
+            videoPlayer.addEventListener('timeupdate', updateTimeline);
+            
+            videoPlayer.addEventListener('loadedmetadata', () => {
+                videoDuration = videoPlayer.duration;
+                endTimeInput.value = videoDuration.toFixed(1);
+                rangeSlider.max = Math.floor(videoDuration);
+                updateInputsFromSlider();
+            });
+            
+            rangeSlider.addEventListener('input', updateInputsFromSlider);
+            
+            startTimeInput.addEventListener('change', updateSliderFromInputs);
+            endTimeInput.addEventListener('change', updateSliderFromInputs);
+            
+            previewBtn.addEventListener('click', previewSelection);
+            cutBtn.addEventListener('click', cutVideo);
+            
+            // Functions
+            function handleFileSelect(file) {
+                if (!file.type.startsWith('video/')) {
+                    alert('Silakan pilih file video yang valid.');
+                    return;
+                }
+                
+                videoFile = file;
+                
+                if (videoUrl) {
+                    URL.revokeObjectURL(videoUrl);
+                }
+                
+                videoUrl = URL.createObjectURL(file);
+                videoPlayer.src = videoUrl;
+                videoContainer.style.display = 'block';
+                
+                // Scroll to video container
+                videoContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            function updateTimeline() {
+                const percentage = (videoPlayer.currentTime / videoDuration) * 100;
+                progress.style.width = percentage + '%';
+                
+                const sliderPercentage = videoPlayer.currentTime / videoDuration * 100;
+                if (Math.abs(sliderPercentage - rangeSlider.value) > 5) {
+                    rangeSlider.value = sliderPercentage;
+                }
+            }
+            
+            function updateInputsFromSlider() {
+                const sliderValue = parseFloat(rangeSlider.value);
+                const duration = parseFloat(videoDuration);
+                
+                if (sliderValue < duration && sliderValue >= 0) {
+                    videoPlayer.currentTime = sliderValue;
+                    
+                    if (sliderValue < parseFloat(startTimeInput.value)) {
+                        startTimeInput.value = sliderValue.toFixed(1);
+                    } else if (sliderValue > parseFloat(endTimeInput.value)) {
+                        endTimeInput.value = sliderValue.toFixed(1);
+                    }
+                }
+                
+                updateTimeline();
+            }
+            
+            function updateSliderFromInputs() {
+                const startTime = parseFloat(startTimeInput.value);
+                const endTime = parseFloat(endTimeInput.value);
+                
+                if (startTime <= endTime && endTime <= videoDuration) {
+                    videoPlayer.currentTime = startTime;
+                    rangeSlider.value = startTime;
+                    updateTimeline();
+                } else {
+                    alert('Waktu mulai harus lebih kecil dari waktu akhir.');
+                    startTimeInput.value = '0';
+                    endTimeInput.value = videoDuration.toFixed(1);
+                }
+            }
+            
+            function previewSelection() {
+                const startTime = parseFloat(startTimeInput.value);
+                const endTime = parseFloat(endTimeInput.value);
+                
+                if (startTime >= endTime) {
+                    alert('Waktu mulai harus lebih kecil dari waktu akhir.');
+                    return;
+                }
+                
+                if (endTime > videoDuration) {
+                    alert('Waktu akhir tidak boleh melebihi durasi video.');
+                    return;
+                }
+                
+                videoPlayer.currentTime = startTime;
+                videoPlayer.play();
+                
+                videoPlayer.ontimeupdate = function() {
+                    if (this.currentTime >= endTime) {
+                        this.pause();
+                        this.ontimeupdate = null;
+                    }
+                };
+            }
+            
+            function cutVideo() {
+                if (!videoFile) {
+                    alert('Silakan unggah video terlebih dahulu.');
+                    return;
+                }
+                
+                const startTime = parseFloat(startTimeInput.value);
+                const endTime = parseFloat(endTimeInput.value);
+                
+                if (startTime >= endTime) {
+                    alert('Waktu mulai harus lebih kecil dari waktu akhir.');
+                    return;
+                }
+                
+                if (endTime > videoDuration) {
+                    alert('Waktu akhir tidak boleh melebihi durasi video.');
+                    return;
+                }
+                
+                loading.style.display = 'block';
+                cutBtn.disabled = true;
+                
+                // Process video cutting
+                setTimeout(() => {
+                    processVideoCut(videoFile, startTime, endTime);
+                }, 500);
+            }
+            
+            function processVideoCut(file, startTime, endTime) {
+                const video = document.createElement('video');
+                const sourceUrl = URL.createObjectURL(file);
+                video.src = sourceUrl;
+                
+                video.onloadedmetadata = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Set canvas dimensions to video dimensions
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    
+                    const chunks = [];
+                    const stream = canvas.captureStream();
+                    const mediaRecorder = new MediaRecorder(stream, {
+                        mimeType: 'video/webm'
+                    });
+                    
+                    mediaRecorder.ondataavailable = function(e) {
+                        chunks.push(e.data);
+                    };
+                    
+                    mediaRecorder.onstop = function() {
+                        const blob = new Blob(chunks, { type: 'video/webm' });
+                        const url = URL.createObjectURL(blob);
+                        
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'cut_' + file.name.replace(/\.[^/.]+$/, '') + '.webm';
+                        document.body.appendChild(a);
+                        a.click();
+                        
+                        setTimeout(() => {
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(sourceUrl);
+                            URL.revokeObjectURL(url);
+                        }, 100);
+                        
+                        loading.style.display = 'none';
+                        cutBtn.disabled = false;
+                    };
+                    
+                    video.currentTime = startTime;
+                    
+                    video.onseeked = function() {
+                        mediaRecorder.start();
+                        
+                        function captureFrame() {
+                            if (video.currentTime >= endTime || video.ended) {
+                                mediaRecorder.stop();
+                                return;
+                            }
+                            
+                            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                            video.currentTime = Math.min(video.currentTime + 0.1, endTime);
+                            
+                            requestAnimationFrame(captureFrame);
+                        }
+                        
+                        captureFrame();
+                    };
+                    
+                    video.play();
+                };
+            }
+        });
+    </script>
+</body>
+</html>
